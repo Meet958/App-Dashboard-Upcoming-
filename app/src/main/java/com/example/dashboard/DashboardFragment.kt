@@ -2,13 +2,19 @@ package com.example.dashboard
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
-import android.util.Log
+import com.example.api.RetrofitClient
+import com.example.api.StatusUpdateResponse
+import com.example.utils.TokenManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
@@ -17,25 +23,49 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
         val pieChart = view.findViewById<PieChart>(R.id.pieChart)
 
-        val entries = ArrayList<PieEntry>()
-        entries.add(PieEntry(120f, "Total"))
-        entries.add(PieEntry(8f, "Near Expiry"))
-        entries.add(PieEntry(2f, "Expired"))
-        entries.add(PieEntry(3f, "Returned"))
-        Log.d("PieChartDebug", "Entries size: ${entries.size}")
+        // ✅ Get token from TokenManager
+        val token = TokenManager.getToken(requireContext())
 
-        val dataSet = PieDataSet(entries, "")
-        dataSet.colors = ColorTemplate.MATERIAL_COLORS.toList()
+        if (token != null) {
+            RetrofitClient.getInstance(requireContext()).getStats("Bearer $token")
+                .enqueue(object : Callback<StatusUpdateResponse> {
+                    override fun onResponse(
+                        call: Call<StatusUpdateResponse>,
+                        response: Response<StatusUpdateResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            response.body()?.let { stats ->
+                                val entries = arrayListOf(
+                                    PieEntry(stats.totalStock.toFloat(), "Total"),
+                                    PieEntry(stats.nearExpiry.toFloat(), "Near Expiry"),
+                                    PieEntry(stats.expired.toFloat(), "Expired"),
+                                    PieEntry(if (stats.returned) 1f else 0f, "Returned") // ✅ Convert Boolean to Float
+                                )
 
-        val data = PieData(dataSet)
-        data.setValueTextSize(14f)
-        data.setValueTextColor(android.graphics.Color.WHITE)
+                                val dataSet = PieDataSet(entries, "")
+                                dataSet.colors = ColorTemplate.MATERIAL_COLORS.toList()
+                                val data = PieData(dataSet)
+                                data.setValueTextSize(14f)
+                                data.setValueTextColor(android.graphics.Color.WHITE)
 
-        pieChart.data = data
-        pieChart.description.isEnabled = false
-        pieChart.isDrawHoleEnabled = true
-        pieChart.centerText = "Batches"
-        pieChart.animateY(1000)
-        pieChart.invalidate()
+                                pieChart.data = data
+                                pieChart.description.isEnabled = false
+                                pieChart.isDrawHoleEnabled = true
+                                pieChart.centerText = "Batches"
+                                pieChart.animateY(1000)
+                                pieChart.invalidate()
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Error loading stats", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<StatusUpdateResponse>, t: Throwable) {
+                        Toast.makeText(requireContext(), "Failed: ${t.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+        } else {
+            Toast.makeText(requireContext(), "Token not found", Toast.LENGTH_SHORT).show()
+        }
     }
 }

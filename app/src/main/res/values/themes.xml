@@ -1,9 +1,21 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Dashboard" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ✅ Your Dashboard/Main theme -->
+    <style name="Theme.Dashboard" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your Dashboard theme here -->
+        <item name="colorPrimary">#1A5D1A</item>   <!-- Dark green -->
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#A9EDAE</item> <!-- Light green -->
+        <!-- Add other custom colors if needed -->
     </style>
 
-    <style name="Theme.Dashboard" parent="Base.Theme.Dashboard" />
+    <!-- ✅ Your Splash theme -->
+    <style name="Theme.MediTrack.Splash" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Background color for splash -->
+        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 </resources>

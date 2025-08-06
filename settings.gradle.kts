@@ -13,24 +13,13 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")  // ✅ Required for MPAndroidChart!
-    }
-}
-
-rootProject.name = "Dashboard"
-include(":app")
-
-dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io") // ✅ For MPAndroidChart and other GitHub libs
     }
 }
 
 rootProject.name = "Dashboard"
 include(":app")
- 
